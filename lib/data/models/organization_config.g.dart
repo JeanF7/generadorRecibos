@@ -58,8 +58,18 @@ const OrganizationConfigSchema = CollectionSchema(
       name: r'profileName',
       type: IsarType.string,
     ),
-    r'taxId': PropertySchema(
+    r'signaturePath': PropertySchema(
       id: 8,
+      name: r'signaturePath',
+      type: IsarType.string,
+    ),
+    r'stampPath': PropertySchema(
+      id: 9,
+      name: r'stampPath',
+      type: IsarType.string,
+    ),
+    r'taxId': PropertySchema(
+      id: 10,
       name: r'taxId',
       type: IsarType.string,
     )
@@ -127,6 +137,18 @@ int _organizationConfigEstimateSize(
     }
   }
   {
+    final value = object.signaturePath;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.stampPath;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.taxId;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -149,7 +171,9 @@ void _organizationConfigSerialize(
   writer.writeString(offsets[5], object.name);
   writer.writeString(offsets[6], object.phone);
   writer.writeString(offsets[7], object.profileName);
-  writer.writeString(offsets[8], object.taxId);
+  writer.writeString(offsets[8], object.signaturePath);
+  writer.writeString(offsets[9], object.stampPath);
+  writer.writeString(offsets[10], object.taxId);
 }
 
 OrganizationConfig _organizationConfigDeserialize(
@@ -168,7 +192,9 @@ OrganizationConfig _organizationConfigDeserialize(
   object.name = reader.readStringOrNull(offsets[5]);
   object.phone = reader.readStringOrNull(offsets[6]);
   object.profileName = reader.readStringOrNull(offsets[7]);
-  object.taxId = reader.readStringOrNull(offsets[8]);
+  object.signaturePath = reader.readStringOrNull(offsets[8]);
+  object.stampPath = reader.readStringOrNull(offsets[9]);
+  object.taxId = reader.readStringOrNull(offsets[10]);
   return object;
 }
 
@@ -196,6 +222,10 @@ P _organizationConfigDeserializeProp<P>(
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
+      return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (reader.readStringOrNull(offset)) as P;
+    case 10:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1461,6 +1491,314 @@ extension OrganizationConfigQueryFilter
   }
 
   QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'signaturePath',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'signaturePath',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'signaturePath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'signaturePath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'signaturePath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'signaturePath',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'signaturePath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'signaturePath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'signaturePath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'signaturePath',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'signaturePath',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      signaturePathIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'signaturePath',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'stampPath',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'stampPath',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'stampPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'stampPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'stampPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'stampPath',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'stampPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'stampPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'stampPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'stampPath',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'stampPath',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
+      stampPathIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'stampPath',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterFilterCondition>
       taxIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1736,6 +2074,34 @@ extension OrganizationConfigQuerySortBy
   }
 
   QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      sortBySignaturePath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'signaturePath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      sortBySignaturePathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'signaturePath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      sortByStampPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stampPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      sortByStampPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stampPath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
       sortByTaxId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'taxId', Sort.asc);
@@ -1879,6 +2245,34 @@ extension OrganizationConfigQuerySortThenBy
   }
 
   QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      thenBySignaturePath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'signaturePath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      thenBySignaturePathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'signaturePath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      thenByStampPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stampPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
+      thenByStampPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stampPath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QAfterSortBy>
       thenByTaxId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'taxId', Sort.asc);
@@ -1953,6 +2347,21 @@ extension OrganizationConfigQueryWhereDistinct
   }
 
   QueryBuilder<OrganizationConfig, OrganizationConfig, QDistinct>
+      distinctBySignaturePath({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'signaturePath',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QDistinct>
+      distinctByStampPath({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'stampPath', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, OrganizationConfig, QDistinct>
       distinctByTaxId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'taxId', caseSensitive: caseSensitive);
@@ -2018,6 +2427,20 @@ extension OrganizationConfigQueryProperty
       profileNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'profileName');
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, String?, QQueryOperations>
+      signaturePathProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'signaturePath');
+    });
+  }
+
+  QueryBuilder<OrganizationConfig, String?, QQueryOperations>
+      stampPathProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'stampPath');
     });
   }
 

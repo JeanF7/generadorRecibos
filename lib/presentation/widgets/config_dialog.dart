@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/local/file_helper.dart';
 import '../../data/models/organization_config.dart';
-import '../../logic/config_cubit/config_cubit.dart';
 import '../../logic/config_cubit/config_cubit.dart';
 import '../../logic/config_cubit/config_state.dart';
 import '../../logic/history_cubit/history_cubit.dart';
@@ -29,6 +29,8 @@ class _ConfigDialogState extends State<ConfigDialog> {
   final _phoneCtrl = TextEditingController();
   final _infoCtrl = TextEditingController();
   String? _logoPath;
+  String? _signaturePath;
+  String? _stampPath;
   bool _isInstitution = false;
 
   @override
@@ -52,6 +54,8 @@ class _ConfigDialogState extends State<ConfigDialog> {
      _infoCtrl.text = config.additionalInfo ?? "";
      setState(() {
        _logoPath = config.logoPath;
+       _signaturePath = config.signaturePath;
+       _stampPath = config.stampPath;
        _isInstitution = config.isInstitution ?? false;
      });
   }
@@ -64,6 +68,8 @@ class _ConfigDialogState extends State<ConfigDialog> {
     _infoCtrl.clear();
     setState(() {
       _logoPath = null;
+      _signaturePath = null;
+      _stampPath = null;
       _isInstitution = false;
     });
   }
@@ -239,6 +245,61 @@ class _ConfigDialogState extends State<ConfigDialog> {
                  )
                ],
              ),
+             const SizedBox(height: 16),
+             Row(
+               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               children: [
+                 Column(
+                   children: [
+                     const Text("Firma (Opcional)", style: TextStyle(fontSize: 12)),
+                     const SizedBox(height: 5),
+                     GestureDetector(
+                        onTap: () async {
+                          FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+                          if (result != null && mounted) {
+                            setState(() { _signaturePath = result.files.single.path; });
+                          }
+                        },
+                        child: Container(
+                          height: 80, 
+                          width: 150, 
+                          color: Colors.grey[200],
+                          child: _signaturePath != null 
+                            ? Image.file(File(_signaturePath!), fit: BoxFit.contain, errorBuilder: (c,e,s) => const Icon(Icons.broken_image))
+                            : const Icon(Icons.add_a_photo, color: Colors.grey),
+                        ),
+                     ),
+                     if (_signaturePath != null)
+                       TextButton(onPressed: () => setState(() => _signaturePath = null), child: const Text("Quitar", style: TextStyle(fontSize: 10))),
+                   ],
+                 ),
+                 Column(
+                   children: [
+                     const Text("Sello (Opcional)", style: TextStyle(fontSize: 12)),
+                     const SizedBox(height: 5),
+                     GestureDetector(
+                        onTap: () async {
+                          FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+                          if (result != null && mounted) {
+                            setState(() { _stampPath = result.files.single.path; });
+                          }
+                        },
+                        child: Container(
+                          height: 80, 
+                          width: 80, 
+                          color: Colors.grey[200],
+                          child: _stampPath != null 
+                            ? Image.file(File(_stampPath!), fit: BoxFit.contain, errorBuilder: (c,e,s) => const Icon(Icons.broken_image))
+                            : const Icon(Icons.add_a_photo, color: Colors.grey),
+                        ),
+                     ),
+                     if (_stampPath != null)
+                       TextButton(onPressed: () => setState(() => _stampPath = null), child: const Text("Quitar", style: TextStyle(fontSize: 10))),
+                   ],
+                 ),
+               ],
+             ),
+             const SizedBox(height: 16),
              TextFormField(controller: _addressCtrl, decoration: const InputDecoration(labelText: "Dirección")),
              TextFormField(controller: _phoneCtrl, decoration: const InputDecoration(labelText: "Teléfono")),
              TextFormField(controller: _infoCtrl, decoration: const InputDecoration(labelText: "Info Adicional"), maxLines: 2),
@@ -248,19 +309,43 @@ class _ConfigDialogState extends State<ConfigDialog> {
     );
   }
   
-  void _saveCurrent(OrganizationConfig original) {
+  void _saveCurrent(OrganizationConfig original) async {
      if (_formKey.currentState!.validate()) {
+       
+       // Handle Image Copying & Deletion of old ones if changed
+       String? newLogoPath = _logoPath;
+       if (_logoPath != original.logoPath) {
+         newLogoPath = await FileHelper.copyImageToLocal(_logoPath);
+         if (original.logoPath != null) await FileHelper.deleteLocalImage(original.logoPath);
+       }
+       
+       String? newSignaturePath = _signaturePath;
+       if (_signaturePath != original.signaturePath) {
+         newSignaturePath = await FileHelper.copyImageToLocal(_signaturePath);
+         if (original.signaturePath != null) await FileHelper.deleteLocalImage(original.signaturePath);
+       }
+       
+       String? newStampPath = _stampPath;
+       if (_stampPath != original.stampPath) {
+         newStampPath = await FileHelper.copyImageToLocal(_stampPath);
+         if (original.stampPath != null) await FileHelper.deleteLocalImage(original.stampPath);
+       }
+
        // Update original object with new values (Isar objects are mutable usually, but better to clone if using copyWith, here we mutate)
        original.name = _nameCtrl.text;
        original.address = _addressCtrl.text;
        original.taxId = _taxCtrl.text;
        original.phone = _phoneCtrl.text;
        original.additionalInfo = _infoCtrl.text;
-       original.logoPath = _logoPath;
+       original.logoPath = newLogoPath;
+       original.signaturePath = newSignaturePath;
+       original.stampPath = newStampPath;
        original.isInstitution = _isInstitution;
        
-       context.read<ConfigCubit>().saveConfig(original);
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Guardado")));
+       if (mounted) {
+         context.read<ConfigCubit>().saveConfig(original);
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Guardado")));
+       }
      }
   }
 

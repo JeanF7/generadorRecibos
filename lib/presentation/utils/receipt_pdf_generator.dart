@@ -25,6 +25,24 @@ class ReceiptPdfGenerator {
       } catch (_) {}
     }
 
+    // Load Signature if exists
+    pw.MemoryImage? signatureImage;
+    if (config.signaturePath != null && File(config.signaturePath!).existsSync()) {
+      try {
+        final bytes = await File(config.signaturePath!).readAsBytes();
+        signatureImage = pw.MemoryImage(bytes);
+      } catch (_) {}
+    }
+    
+    // Load Stamp if exists
+    pw.MemoryImage? stampImage;
+    if (config.stampPath != null && File(config.stampPath!).existsSync()) {
+      try {
+        final bytes = await File(config.stampPath!).readAsBytes();
+        stampImage = pw.MemoryImage(bytes);
+      } catch (_) {}
+    }
+
     // await initializeDateFormatting('es'); // Ensure this is initialized in main or here if needed (but async here might be tricky if not awaited in main)
     final dateFormat = DateFormat("EEEE d 'de' MMMM 'del' y 'a las' hh:mm:ss a", 'es');
 
@@ -140,15 +158,57 @@ class ReceiptPdfGenerator {
                  ]
                ),
               
-              pw.SizedBox(height: 80),
+               pw.SizedBox(height: 50), // Spacer before signature
 
-              // Signature
+               // Signature and Stamp section
                pw.Row(
                  mainAxisAlignment: pw.MainAxisAlignment.end,
                  children: [
                    pw.Column(
+                     mainAxisAlignment: pw.MainAxisAlignment.end,
                      children: [
-                       pw.Container(width: 150, height: 1, color: PdfColors.black),
+                       pw.Container(
+                         width: 200, // Wider container to avoid any clipping issues
+                         height: 75,
+                         child: pw.Stack(
+                           children: [
+                             if (stampImage != null && signatureImage == null)
+                               pw.Positioned(
+                                 bottom: 0, left: 25, right: 25, // Center within the 150 area
+                                 child: pw.Image(stampImage, fit: pw.BoxFit.contain)
+                               ),
+                             
+                             if (signatureImage != null && stampImage == null)
+                               pw.Positioned(
+                                 bottom: 0, left: 25, right: 25, // Center within the 150 area
+                                 child: pw.Image(signatureImage, fit: pw.BoxFit.contain)
+                               ),
+                             
+                             if (stampImage != null && signatureImage != null)
+                               pw.Positioned(
+                                 right: 25, // Align to the right edge of the 150 area
+                                 bottom: 0,
+                                 child: pw.Container(
+                                   width: 120,
+                                   height: 70,
+                                   child: pw.Image(signatureImage, fit: pw.BoxFit.contain),
+                                 ),
+                               ),
+                               
+                             if (stampImage != null && signatureImage != null)
+                               pw.Positioned(
+                                 left: 0, // Starts outside the 150 area (which starts at 25)
+                                 bottom: 0,
+                                 child: pw.Container(
+                                   width: 70,
+                                   height: 70,
+                                   child: pw.Image(stampImage, fit: pw.BoxFit.contain),
+                                 ),
+                               ),
+                           ],
+                         ),
+                       ),
+                       pw.Container(width: 150, height: 1, color: PdfColors.black), // The 150px line centers inside the 200px column
                        pw.SizedBox(height: 5),
                        pw.Text("Firma y/o Sello", style: const pw.TextStyle(fontSize: 12)),
                      ]

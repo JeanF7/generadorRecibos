@@ -11,6 +11,8 @@ class OrganizationConfig {
   String? address;
   String? taxId;
   String? logoPath;
+  String? signaturePath;
+  String? stampPath;
   String? email;
   String? phone;
   String? additionalInfo;

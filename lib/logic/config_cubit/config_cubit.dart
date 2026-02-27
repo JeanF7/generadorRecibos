@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/local/file_helper.dart';
 import '../../data/models/organization_config.dart';
 import '../../data/repositories/config_repository.dart';
 import 'config_state.dart';
@@ -59,6 +60,12 @@ class ConfigCubit extends Cubit<ConfigState> {
   
   Future<void> deleteConfig(int id) async {
     try {
+       // Delete physical images if any
+       final configToDelete = await _repo.getConfig(id);
+       if (configToDelete.logoPath != null) await FileHelper.deleteLocalImage(configToDelete.logoPath);
+       if (configToDelete.signaturePath != null) await FileHelper.deleteLocalImage(configToDelete.signaturePath);
+       if (configToDelete.stampPath != null) await FileHelper.deleteLocalImage(configToDelete.stampPath);
+
        await _repo.deleteConfig(id);
        await loadConfig(); // Load default
     } catch (e) {
@@ -74,6 +81,7 @@ class ConfigCubit extends Cubit<ConfigState> {
   Future<void> wipeData() async {
     try {
       await _repo.clearAllData(); // Needs to be added to repo
+      await FileHelper.wipeImagesDirectory();
       emit(ConfigInitial());
       await loadConfig();
     } catch (e) {
