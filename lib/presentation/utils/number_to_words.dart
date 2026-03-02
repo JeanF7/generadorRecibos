@@ -61,28 +61,17 @@ class NumberToWords {
   }
   
   static String convertToCustomFormat(double number) {
-      // User Custom format: "veintiseis soles con cuarenta y tres céntimos"
       int wholePart = number.truncate();
       int decimalPart = ((number - wholePart) * 100).round();
       
       String wholeWords = _convertNumber(wholePart).trim().toLowerCase();
-      // Fix "un" vs "uno"
       if (wholePart == 1) wholeWords = "un";
-      if (wholeWords.endsWith("uno")) wholeWords = wholeWords.substring(0, wholeWords.length - 1); // veintiuno -> veintiun
-
-      String decimalWords = _convertNumber(decimalPart).trim().toLowerCase();
-      // if (decimalPart == 1) decimalWords = "un";
-      
-      // Special case for 100
+      if (wholeWords.endsWith("uno")) wholeWords = wholeWords.substring(0, wholeWords.length - 1);
       if (wholePart == 100) wholeWords = "cien";
       
-      String result = "$wholeWords soles";
-      if (decimalPart > 0) {
-         result += " con $decimalWords céntimos";
-      } else {
-         result += " exactos";
-      }
-      return result;
+      // Siempre mostrar céntimos en formato XX/100
+      final centsStr = decimalPart.toString().padLeft(2, '0');
+      return "$wholeWords soles con $centsStr/100";
   }
 
   static String _convertNumber(int number) {

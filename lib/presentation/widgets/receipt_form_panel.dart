@@ -148,20 +148,12 @@ class _ReceiptFormPanelState extends State<ReceiptFormPanel> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          decoration: const InputDecoration(labelText: "Fecha", suffixIcon: Icon(Icons.calendar_today)),
+                          decoration: const InputDecoration(
+                            labelText: "Fecha",
+                            suffixIcon: Icon(Icons.access_time),
+                          ),
                           readOnly: true,
-                          controller: TextEditingController(text: dateFormat.format(receipt.date)),
-                          onTap: () async {
-                            final date = await showDatePicker(
-                              context: context, 
-                              initialDate: receipt.date, 
-                              firstDate: DateTime(2000), 
-                              lastDate: DateTime(2100)
-                            );
-                            if (date != null && context.mounted) {
-                              context.read<ReceiptFormCubit>().updateDate(date);
-                            }
-                          },
+                          controller: TextEditingController(text: dateFormat.format(DateTime.now())),
                         ),
                       ),
                       const SizedBox(width: 16),

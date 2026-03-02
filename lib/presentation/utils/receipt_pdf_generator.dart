@@ -55,110 +55,194 @@ class ReceiptPdfGenerator {
             children: [
               // Header
               pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  if (logoImage != null) 
-                    pw.Container(
-                      height: 100, 
-                      width: 100, 
-                      child: pw.Image(logoImage)
-                    ),
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
-                    children: [
-                      pw.Text(config.name ?? "Organization Name", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                      pw.Text(config.address ?? "Address", style: const pw.TextStyle(fontSize: 12)),
-                      if (config.taxId != null) 
-                        pw.Text(
-                          "${(config.isInstitution ?? false) ? 'Código Modular' : 'RUC'}: ${config.taxId}",
-                           style: const pw.TextStyle(fontSize: 12)
-                        ),
-                      if (config.phone != null) pw.Text("Tel: ${config.phone}", style: const pw.TextStyle(fontSize: 12)),
-                    ]
-                  )
-                ]
-              ),
-              pw.SizedBox(height: 20),
-              
-              // Title
-              pw.Center(
-                child: pw.Text("RECIBO", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold))
-              ),
-              pw.SizedBox(height: 20),
-
-              // Info Row
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                   pw.Column(
-                     crossAxisAlignment: pw.CrossAxisAlignment.start,
-                     children: [
-                       pw.Text("Recibido De:"),
-                       pw.Text(receipt.payerName ?? "Desconocido", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                       if (receipt.payerIdentifier != null) pw.Text("DNI/RUC: ${receipt.payerIdentifier}"),
-                     ]
+                   // Left: Logo
+                   pw.Expanded(
+                     flex: 1,
+                     child: pw.Align(
+                       alignment: pw.Alignment.centerLeft,
+                       child: logoImage != null 
+                         ? pw.Container(
+                             height: 80, 
+                             width: 80, 
+                             child: pw.Image(logoImage)
+                           )
+                         : pw.SizedBox(width: 80, height: 80),
+                     ),
                    ),
-                   pw.Column(
-                     crossAxisAlignment: pw.CrossAxisAlignment.end,
-                     children: [
-                       pw.Text("Recibo N°: ${receipt.receiptNumber ?? '---'}"),
-                       pw.Text("Fecha: ${dateFormat.format(receipt.date)}"),
-                     ]
-                   )
+
+                   // Center: Title "RECIBO"
+                   pw.Expanded(
+                     flex: 1,
+                     child: pw.Center(
+                       child: pw.Text("RECIBO", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold))
+                     ),
+                   ),
+
+                   // Right: Org Info
+                   pw.Expanded(
+                     flex: 1,
+                     child: pw.Column(
+                       crossAxisAlignment: pw.CrossAxisAlignment.end,
+                       mainAxisAlignment: pw.MainAxisAlignment.center,
+                       children: [
+                         pw.Text(config.name ?? "Organization Name", style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.right),
+                         pw.Text(config.address ?? "Address", style: const pw.TextStyle(fontSize: 10), textAlign: pw.TextAlign.right),
+                         if (config.taxId != null) 
+                           pw.Text(
+                             "${(config.isInstitution ?? false) ? 'Código Modular' : 'RUC'}: ${config.taxId}",
+                              style: const pw.TextStyle(fontSize: 10), textAlign: pw.TextAlign.right
+                           ),
+                         if (config.phone != null) pw.Text("Tel: ${config.phone}", style: const pw.TextStyle(fontSize: 10), textAlign: pw.TextAlign.right),
+                       ]
+                     ),
+                   ),
                 ]
               ),
               pw.SizedBox(height: 30),
 
+              // Info Row (Payer & Receipt Number)
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                   // Left: Payer Info
+                   pw.Expanded(
+                     child: pw.Column(
+                       crossAxisAlignment: pw.CrossAxisAlignment.start,
+                       children: [
+                         pw.Row(
+                           crossAxisAlignment: pw.CrossAxisAlignment.start,
+                           children: [
+                             pw.Text("Recibí de: ", style: const pw.TextStyle(fontSize: 12)),
+                             pw.Expanded(
+                               child: pw.Text(receipt.payerName ?? "Desconocido", style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold))
+                             ),
+                           ]
+                         ),
+                         if (receipt.payerIdentifier != null) 
+                           pw.Padding(
+                             padding: const pw.EdgeInsets.only(top: 2),
+                             child: pw.Text("DNI/RUC: ${receipt.payerIdentifier}", style: const pw.TextStyle(fontSize: 10)),
+                           ),
+                       ]
+                     ),
+                   ),
+                   pw.SizedBox(width: 20),
+                   // Right: Receipt Number Box
+                   pw.Container(
+                     padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                     decoration: pw.BoxDecoration(
+                       color: PdfColors.white,
+                       border: pw.Border.all(color: PdfColors.black, width: 1.5),
+                       borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                     ),
+                     child: pw.Text(
+                       "N° ${receipt.receiptNumber ?? '---'}", 
+                       style: pw.TextStyle(color: PdfColors.black, fontWeight: pw.FontWeight.bold, fontSize: 14)
+                     ),
+                   )
+                ]
+              ),
+              pw.SizedBox(height: 15),
+
+              // Total in Words
+              pw.Text(
+                "La suma de: ${NumberToWords.convertToCustomFormat(receipt.totalAmount ?? 0)}",
+                style: const pw.TextStyle(fontSize: 11),
+              ),
+              pw.SizedBox(height: 30),
+
+              // Items Table Title
+              pw.Text("Por los siguientes conceptos:", style: const pw.TextStyle(fontSize: 11)),
+              pw.SizedBox(height: 5),
+
               // Items Table
-              pw.Table.fromTextArray(
-                context: context,
-                border: null,
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
-                cellHeight: 30,
-                cellAlignments: {
-                  0: pw.Alignment.centerLeft,
-                  1: pw.Alignment.centerRight,
-                  2: pw.Alignment.centerRight,
-                  3: pw.Alignment.centerRight,
+              pw.Table(
+                border: const pw.TableBorder(
+                  bottom: pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                  horizontalInside: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
+                  left: pw.BorderSide.none,
+                  right: pw.BorderSide.none,
+                  top: pw.BorderSide.none,
+                  verticalInside: pw.BorderSide.none,
+                ),
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(3),      // Concepto
+                  1: const pw.IntrinsicColumnWidth(),   // Cantidad
+                  2: const pw.IntrinsicColumnWidth(),   // Monto
                 },
-                headers: <String>['Descripción', 'Cantidad', 'Precio Unit.', 'Total'],
-                data: <List<String>>[
-                  ...receipt.items?.map((item) => [
-                    item.description ?? '',
-                    item.quantity?.toStringAsFixed(2) ?? '0',
-                    item.unitPrice?.toStringAsFixed(2) ?? '0.00',
-                    item.total.toStringAsFixed(2)
-                  ]) ?? []
+                children: [
+                  pw.TableRow(
+                    decoration: const pw.BoxDecoration(color: PdfColors.white),
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                        child: pw.Text('Concepto', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        child: pw.Text('Cantidad', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11), textAlign: pw.TextAlign.center),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                        child: pw.Text('Monto (S/.)', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11), textAlign: pw.TextAlign.right),
+                      ),
+                    ]
+                  ),
+                  ...(receipt.items?.map((item) => pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                        child: pw.Text(item.description ?? '', style: const pw.TextStyle(fontSize: 11)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        child: pw.Text(
+                          item.quantity != null ? item.quantity!.toStringAsFixed(item.quantity == item.quantity!.roundToDouble() ? 0 : 2) : '1',
+                          style: const pw.TextStyle(fontSize: 11),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                        child: pw.Text(item.total.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 11), textAlign: pw.TextAlign.right),
+                      ),
+                    ]
+                  )).toList() ?? []),
+                  pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                        child: pw.Text('TOTAL', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        child: pw.Text('', style: const pw.TextStyle(fontSize: 11)), // Celda vacía
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+                        child: pw.Text('S/. ${(receipt.totalAmount ?? 0).toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11), textAlign: pw.TextAlign.right),
+                      ),
+                    ]
+                  ),
                 ]
               ),
               
-              pw.Divider(),
+              pw.SizedBox(height: 15),
+
+              // Date alignment bottom right
+              pw.Container(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  "${DateFormat("EEEE d 'de' MMMM 'de' y", 'es').format(receipt.date)}\n${DateFormat("hh:mm:ss a", 'es').format(receipt.date).toLowerCase()}",
+                  style: const pw.TextStyle(fontSize: 10),
+                  textAlign: pw.TextAlign.right
+                )
+              ),
               
-              // Total
-              pw.Row(
-                 mainAxisAlignment: pw.MainAxisAlignment.end,
-                 children: [
-                   pw.Column(
-                     crossAxisAlignment: pw.CrossAxisAlignment.end,
-                     children: [
-                        pw.Row(
-                          mainAxisSize: pw.MainAxisSize.min,
-                          children: [
-                            pw.Text("TOTAL: ", style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                            pw.Text("S/. ${(receipt.totalAmount ?? 0).toStringAsFixed(2)}", style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold))
-                          ]
-                        ),
-                        pw.Text(
-                          "SON: (${NumberToWords.convertLower(receipt.totalAmount ?? 0)})",
-                          style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)
-                        )
-                     ]
-                   )
-                 ]
-               ),
-              
-               pw.SizedBox(height: 50), // Spacer before signature
+              pw.SizedBox(height: 50), // Spacer before signature
 
                // Signature and Stamp section
                pw.Row(
